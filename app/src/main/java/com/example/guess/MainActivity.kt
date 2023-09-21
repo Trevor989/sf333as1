@@ -1,44 +1,104 @@
 package com.example.guess
+
 import android.os.Bundle
-import android.view.View
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-class MainActivity : AppCompatActivity() {
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.guess.ui.theme.GuessTheme
+
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        var a1=findViewById<TextView>(R.id.a1)
-        var a2=findViewById<TextView>(R.id.a2)
-        var a3=findViewById<TextView>(R.id.a3)
-        var a4=0
-        var a5=1
-        var a6=0
-        a3.text = "Play"
-        a1.setVisibility(View.INVISIBLE)
-        a3.setOnClickListener() {
-            if (a5==0) {
-                a6+=1
-                if (a1.text.toString().toInt() > a4) {
-                    a2.text = "Hint: It's higter than answer"
-                } else if (a1.text.toString().toInt() < a4) {
-                    a2.text = "Hint: It's lower than answer"
-                } else {
-                    a2.text = "Hint: It's answer, you try "+a6+" time"
-                    a3.text = "Play again"
-                    a1.setVisibility(View.INVISIBLE)
-                    a5 = 1
-                    a6=0
+        setContent {
+            GuessTheme {
+                // A surface container using the 'background' color from the theme
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    Greeting()
                 }
             }
-            else {
-                a1.setVisibility(View.VISIBLE)
-                a4=(1..100).random()
-                a2.text = ""
-                a3.text = "Send"
-                a5 = 0
-            }
-            a1.text=""
         }
+    }
+}
+var random=0
+var trynum=0
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Greeting(modifier: Modifier = Modifier) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Number Guessing Game",
+            modifier = modifier
+        )
+        Text(
+            text = "Try to guess number 1-100",
+            modifier = modifier
+        )
+        var text by remember { mutableStateOf("") }
+        TextField(
+            value = text,
+            onValueChange = { text = it },
+            label = { Text("Your guess") }
+        )
+        var Hint by remember { mutableStateOf("") }
+        Text(
+            text = Hint,
+            modifier = modifier
+        )
+        var Butt by remember { mutableStateOf("Play") }
+        Button(onClick = {
+            if (Butt=="Send") {
+                trynum+=1
+                if (text.toInt() > random) {
+                    Hint = text + " is highter than answer."
+                } else if (text.toInt() < random) {
+                    Hint = text + " is lower than answer."
+                } else if (text.toInt() == random) {
+                    Hint = text + " is answer, you try "+trynum+" time."
+                    Butt = "Play again"
+                    trynum=0
+                }
+                text=""
+            }
+            else {
+                random=(1..100).random()
+                Hint=""
+                Butt="Send"
+            }
+        }) {
+            Text(
+                text = Butt,
+                modifier = modifier
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    GuessTheme {
+        Greeting()
     }
 }
